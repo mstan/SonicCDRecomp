@@ -32,6 +32,18 @@ def main():
     for library in sorted((appdir/'usr/lib').glob('*')):
         if not library.is_file():continue
         source=lookup.get(library.name)
+        if source is None:
+            # Private dependencies (for example PulseAudio's libpulsecommon)
+            # need not appear in ldconfig. Query the package file registry by
+            # exact basename rather than searching the host filesystem.
+            query=subprocess.run(['dpkg-query','-S','*/'+library.name],capture_output=True,text=True)
+            for line in query.stdout.splitlines():
+                if ': ' not in line:continue
+                candidate=Path(line.split(': ',1)[1])
+                if candidate.name!=library.name or not candidate.is_file():continue
+                with candidate.open('rb') as stream:header=stream.read(20)
+                if header[:6]==b'\x7fELF\x02\x01' and header[18:20]==b'\x3e\x00':
+                    source=candidate;break
         if source is None:raise ValueError(f'Cannot identify source package for {library.name}')
         candidates=[str(source),str(source.resolve())]
         if str(source).startswith('/lib/'):candidates.append('/usr'+str(source))
