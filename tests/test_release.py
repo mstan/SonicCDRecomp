@@ -4,6 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+from types import SimpleNamespace
 
 ROOT=Path(__file__).resolve().parents[1]
 def module(name,path):
@@ -14,6 +15,14 @@ package=module('sonic_cd_package',ROOT/'tools/package_release.py')
 
 
 class ProfileTests(unittest.TestCase):
+    def test_file_picker_uses_portable_environment(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            source=Path(temporary)/'selected.bin';source.write_bytes(b'fixture')
+            env={'XDG_DATA_HOME':str(Path(temporary)/'data')}
+            with patch.object(launcher.shutil,'which',return_value='/usr/bin/zenity'),patch.object(launcher.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout=str(source)+'\n')) as picker:
+                self.assertEqual(launcher.select_file('Select BIOS',env),source.resolve())
+                self.assertIs(picker.call_args.kwargs['env'],env)
+
     def test_existing_save_and_settings_survive_update(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);data=root/'userdata';payload=root/'payload'

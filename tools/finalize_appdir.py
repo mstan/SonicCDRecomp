@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import sys
+from package_release import audit_licenses, check_seed
 
 
 def digest(path):
@@ -52,6 +53,9 @@ def main():
     for path in Path('/usr/share/common-licenses').iterdir():
         if path.is_file():shutil.copyfile(path,common/(path.name+'.txt'))
     shutil.copyfile(tools/'AppImage-runtime-LICENSE.txt',payload/'licenses/AppImage-runtime.txt')
+    audit_licenses(payload/'licenses')
+    seed=payload/'seed/sonic-cd.brm'
+    if seed.exists():check_seed(seed)
     inventory={'libraries':libraries,'packages':packages,
                'appimage_runtime':{'source':'https://github.com/AppImage/type2-runtime/tree/fedfad51acc2860b2916a1eef32ba4a500ff31ef',
                    'sha256':digest(tools/'runtime-x86_64'),'license':'usr/bin/licenses/AppImage-runtime.txt'}}

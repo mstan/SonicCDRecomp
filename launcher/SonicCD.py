@@ -45,14 +45,14 @@ def load_config(path: Path) -> dict:
     return config
 
 
-def select_file(title: str) -> Path:
+def select_file(title: str, env: dict | None = None) -> Path:
     if shutil.which('zenity'):
         command=['zenity','--file-selection','--title',title]
     elif shutil.which('kdialog'):
         command=['kdialog','--title',title,'--getopenfilename',str(Path.home())]
     else:
         raise ValueError('Input selection needs Zenity/KDialog, or pass --bios PATH --disc PATH.')
-    selected=subprocess.run(command,capture_output=True,text=True)
+    selected=subprocess.run(command,capture_output=True,text=True,env=env)
     if selected.returncode or not selected.stdout.strip():raise ValueError('Input selection cancelled.')
     return Path(selected.stdout.rstrip('\r\n')).resolve(strict=True)
 
@@ -119,8 +119,8 @@ def run(args: argparse.Namespace) -> int:
     config_path=data/'portable-config.json';config=load_config(config_path)
     bios=args.bios or (Path(config['bios_path']) if config.get('bios_path') else None)
     disc=args.disc or (Path(config['disc_path']) if config.get('disc_path') else None)
-    if bios is None or not bios.is_file():bios=select_file('Sonic CD - select your Sega CD BIOS')
-    if disc is None or not disc.is_file():disc=select_file('Sonic CD - select your disc image')
+    if bios is None or not bios.is_file():bios=select_file('Sonic CD - select your Sega CD BIOS',env)
+    if disc is None or not disc.is_file():disc=select_file('Sonic CD - select your disc image',env)
     bios=bios.resolve(strict=True);disc=disc.resolve(strict=True)
     if not bios.is_file() or not disc.is_file():raise ValueError('Selected input is not a regular file.')
     converted=prepare_disc(disc,data,payload/'tools/segacd/disc_image.py',env)
