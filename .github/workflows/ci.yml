@@ -1,0 +1,34 @@
+name: Source and synthetic checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  package-contracts:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Launcher, save preservation and public package checks
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python -m unittest discover -s tests -v
+  upstream-synthetic:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize only the backend and CPU cores
+        run: |
+          git submodule update --init external/segagenesisrecomp
+          git -C external/segagenesisrecomp submodule update --init external/m68k-recomp-core external/z80-recomp-core
+      - name: Build synthetic suite without owned game inputs
+        run: |
+          cmake -S external/segagenesisrecomp/tests/segacd -B build-tests -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build-tests --target segacd_test_suite --parallel 4
+          ctest --test-dir build-tests --output-on-failure

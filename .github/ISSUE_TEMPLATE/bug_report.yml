@@ -1,0 +1,22 @@
+name: Bug report
+description: Report a problem in Sonic CD Recompiled
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Release and operating system
+      placeholder: 0.0.1, Windows 11 x64 / Ubuntu 24.04 x86_64
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: What happened and how to reproduce it
+      description: Include stage, act, time period, settings and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs or screenshots
+      description: Attach relevant userdata/logs/SonicCD.log output. Do not attach BIOS or disc images.

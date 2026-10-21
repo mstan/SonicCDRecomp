@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+cd_appdir=${APPDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)}
+if [ -n "${APPIMAGE:-}" ]; then
+    cd_package=$(dirname -- "$(readlink -f -- "$APPIMAGE")")
+else
+    cd_package=$cd_appdir
+fi
+export SONICCD_PACKAGE_HOME="$cd_package"
+export SONICCD_PAYLOAD_ROOT="$cd_appdir/usr/bin"
+unset LD_LIBRARY_PATH LD_PRELOAD
+exec python3 "$SONICCD_PAYLOAD_ROOT/SonicCD.py" "$@"
