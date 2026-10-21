@@ -35,6 +35,20 @@ Its final focused run reaches 2,923 frames with native Main/Sub floor counters 0
 zero audio faults and nonzero stereo audio. Independent final visual retakes also
 have floors 0/0 and zero audio faults. Release manifests identify platform binaries.
 
+The complete content matrix above was recorded on Windows. Linux 0.0.1 rebuilds
+the identical owned-generated catalogs with GCC 13.3 on Ubuntu 24.04. Its packaged
+runtime passed a source-qualified 2,791-frame Palmtree Panic movement, expanded
+scenery and stereo-audio check, with native floors 0/0, zero audio faults and no
+audio event underflow/overflow/backwards counters. The captured RGB frame matches
+the Windows frame exactly; final visual review passed.
+
+Two actual AppImage launches passed with the clean `Sonic CD` window caption,
+normal window defaults, volume 100 default settings, remembered input paths and
+preserved existing settings/backup RAM. Automated speaker output was muted;
+emulated audio remained active and its nonzero stereo capture was measured.
+The complete content matrix was reused rather than repeated for Linux. Other
+Linux distributions and physical Linux audio/controller devices remain unverified.
+
 ## Known limits
 
 - Only the listed US disc/BIOS combination is supported.
