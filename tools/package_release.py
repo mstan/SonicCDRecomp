@@ -92,6 +92,7 @@ def audit_licenses(root: Path) -> None:
         text=path.read_text(encoding='latin-1' if path.suffix.lower()=='.rtf' else 'utf-8-sig')
         if path.suffix.lower()=='.rtf' and not text.startswith('{\\rtf'):
             raise ValueError(f'Invalid RTF license document: {path.name}')
+        if path.suffix.lower()=='.rtf':text=text.rstrip('\0')
         if '\0' in text:raise ValueError(f'Binary content in license file: {path.name}')
 
 

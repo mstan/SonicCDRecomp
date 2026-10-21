@@ -77,6 +77,14 @@ class DiscCacheTests(unittest.TestCase):
 
 
 class PackageTests(unittest.TestCase):
+    def test_terminated_rtf_license_is_valid_but_embedded_binary_is_not(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);license=root/'MSVC-runtime.rtf'
+            license.write_bytes(b'{\\rtf1 legal text}\0')
+            package.audit_licenses(root)
+            license.write_bytes(b'{\\rtf1 legal\0binary}')
+            with self.assertRaisesRegex(ValueError,'Binary content'):package.audit_licenses(root)
+
     def tree(self,root):
         (root/'licenses').mkdir();(root/'licenses/test.txt').write_text('Synthetic license text')
         (root/'userdata').mkdir()
