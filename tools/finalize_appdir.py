@@ -22,6 +22,7 @@ def main():
     cache=subprocess.check_output(['ldconfig','-p'],text=True)
     lookup={}
     for line in cache.splitlines():
+        if 'x86-64' not in line:continue
         match=re.search(r'^\s*(\S+) .* => (/.+)$',line)
         if match:
             path=Path(match[2]);lookup[match[1]]=path

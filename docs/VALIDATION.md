@@ -1,7 +1,7 @@
 # 0.0.1 validation and limits
 
 The initial release uses the original US game programs on the strict native
-Main/Sub68000 and Z80 path. A missing generated instruction stops visibly;
+Main/Sub 68000 and Z80 path. A missing generated instruction stops visibly;
 there is no silent interpreter fallback in the game. The separate diagnostic
 floor probe is used during catalog generation only.
 
@@ -24,21 +24,21 @@ completion, result, save and next-scene transitions under test; those outcome
 flags aren't supplied by the test. This is representative coverage, not an
 exhaustive playthrough of every object interaction.
 
-The complete owned-input recipe generates333 catalogs/11290 C/header files.
-All2019176 required original M68K guards are preserved; two-stage native Z80
+The complete owned-input recipe generates 333 catalogs / 11,290 C/header files.
+All 2,019,176 required original M68K guards are preserved; two-stage native Z80
 generation retains all qualified historical code-region guards. Both input
 identities and generated source hashes are checked before compilation.
 
 The accepted Windows executable has SHA-256
 `80c14de9c887afd5d52d25360beeb1a8ce3d5da21544fc77c23a09c0798ca74d`.
-Its final focused run reaches2923 frames with native Main/Sub floor counters0/0,
-audioFaults0 and nonzero stereo audio. Independent final visual retakes also
-have floors0/0 and audioFaults0. Release manifests identify platform binaries.
+Its final focused run reaches 2,923 frames with native Main/Sub floor counters 0/0,
+zero audio faults and nonzero stereo audio. Independent final visual retakes also
+have floors 0/0 and zero audio faults. Release manifests identify platform binaries.
 
 ## Known limits
 
 - Only the listed US disc/BIOS combination is supported.
-- Special stages retain the original256px projection. Widescreen expansion is
+- Special stages retain the original 256px projection. Widescreen expansion is
   available for supported normal stages; it is not claimed for every scene.
 - Physical projector contact, air-bubble refill, physical gamepad and the
   alternate all-time-stones good-ending prerequisite route were not independently
