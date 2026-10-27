@@ -13,7 +13,7 @@ import sys
 import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
-ENGINE=ROOT/'external/segagenesisrecomp'
+ENGINE=Path(os.environ.get('GENESIS_RECOMP_ROOT',ROOT/'external/segagenesisrecomp')).resolve()
 VERSION='0.0.1'
 EMPTY_BRAM_SHA='4390aad972163d9bbc8a8cd7d32e86b216e5a17a0d795c7d230942155e6a895b'
 CRT_DLLS={'vcruntime140.dll','vcruntime140_1.dll','vcruntime140_threads.dll',
