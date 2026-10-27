@@ -7,7 +7,7 @@ import re
 import shutil
 import subprocess
 import sys
-from package_release import audit_licenses, check_seed
+from package_release import VERSION, audit_licenses, check_seed
 
 
 def digest(path):
@@ -86,7 +86,7 @@ def main():
             raise ValueError(f'Unexpected media/diagnostic artifact: {relative}')
         if 'userdata' in path.relative_to(appdir).parts:raise ValueError('AppDir contains a personal profile.')
         files.append({'path':relative,'bytes':path.stat().st_size,'sha256':digest(path)})
-    manifest={'schema':'SonicCDLinuxAppDir1','version':'0.0.1','platform':'linux-x86_64',
+    manifest={'schema':'SonicCDLinuxAppDir1','version':VERSION,'platform':'linux-x86_64',
               'owner_media_copied':False,'source':info,'files':files}
     (appdir/'package-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     print(json.dumps({'files':len(files),'system_libraries':len(libraries),'source_packages':len(packages),
