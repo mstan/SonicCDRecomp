@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.0.3 - 2026-10-27
 
 - Keep the verified data track resident and service ordinary game file reads
   directly from those sectors, shortening stage and time-travel loading.

@@ -54,7 +54,8 @@ source-defined Past start; the game executes its timer, trigger, cutscene and
 reload. An earlier invalid arrival caused identical deaths in both arms and is
 retained as a superseded fixture failure. Native floor counters, audio faults,
 and audio event underflow/overflow/backwards counters are zero. Stereo audio
-capture is nonzero. Owner visual clearance remains pending.
+capture is nonzero. The owner accepted the improvements on 2026-10-27, with the
+qualification that the result is improved rather than perfect.
 
 The cached raw data track occupies 139,734,672 bytes (133.26 MiB). Measured median
 private process memory rises from 24.14 MiB to 157.69 MiB, about 134 MiB more.

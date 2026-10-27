@@ -1,9 +1,9 @@
 # Sonic CD Recompiled
 
 Play the original **Sonic CD** on Windows and Linux, with native recompilation,
-recomp-ui settings and adaptive widescreen. **0.0.1** is the initial public release.
+recomp-ui settings, adaptive widescreen and faster resident file loading.
 
-[Download 0.0.1](https://github.com/mstan/SonicCDRecomp/releases/tag/v0.0.1) ·
+[Download 0.0.3](https://github.com/mstan/SonicCDRecomp/releases/tag/v0.0.3) ·
 [Getting started](#getting-started) · [Build from source](docs/BUILDING.md) ·
 [Report a bug](https://github.com/mstan/SonicCDRecomp/issues/new/choose)
 
@@ -30,7 +30,7 @@ included. This release supports one qualified disc/BIOS revision; see
 
 **Windows 10/11 x64**
 
-1. Download and extract `SonicCD-0.0.1-windows-x64.zip` into a writable folder.
+1. Download and extract `SonicCD-0.0.3-windows-x64.zip` into a writable folder.
 2. Run `SonicCD.cmd` and choose your BIOS and disc image when prompted.
 3. Press **Enter** at the original title/menu screens to start.
 
@@ -39,12 +39,12 @@ requires Python 3 for the included converter; tracks remain beside their CUE.
 
 **Linux x86_64**
 
-1. Download `SonicCD-0.0.1-linux-x86_64.AppImage`.
+1. Download `SonicCD-0.0.3-linux-x86_64.AppImage`.
 2. Make it executable and run it:
 
    ```sh
-   chmod +x SonicCD-0.0.1-linux-x86_64.AppImage
-   ./SonicCD-0.0.1-linux-x86_64.AppImage
+   chmod +x SonicCD-0.0.3-linux-x86_64.AppImage
+   ./SonicCD-0.0.3-linux-x86_64.AppImage
    ```
 
 3. Choose your BIOS and disc. Python 3 and either Zenity or KDialog provide
