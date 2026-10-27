@@ -9,4 +9,31 @@ endif()
 
 # The upstream feature branch owns the reusable Sega CD devices and strict
 # native runner. No duplicate emulator or alternate execution path is linked.
-add_subdirectory(external/segagenesisrecomp/tests/segacd runtime)
+set(GENESIS_RECOMP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/external/segagenesisrecomp"
+    CACHE PATH "Shared GenesisRecomp engine source root")
+set(SEGACD_GAME_RENDER_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/game/sonic_cd_render.c"
+    CACHE FILEPATH "Game-owned complete-row renderer" FORCE)
+add_subdirectory("${GENESIS_RECOMP_ROOT}/tests/segacd" runtime)
+
+enable_testing()
+set(_cd_engine "${GENESIS_RECOMP_ROOT}")
+add_library(cd_scalar_render_model OBJECT "${_cd_engine}/runner/cd/sonic_cd_render.c")
+target_compile_definitions(cd_scalar_render_model PRIVATE segacd_render_scanline=reference_render)
+target_include_directories(cd_scalar_render_model PRIVATE "${_cd_engine}/runner/cd" "${_cd_engine}/runner/video")
+add_executable(cd_render_diff tests/render_diff.c game/sonic_cd_render.c
+    "${_cd_engine}/runner/cd/sonic_cd_world.c" "${_cd_engine}/runner/cd/sonic_cd_scene.c"
+    $<TARGET_OBJECTS:cd_scalar_render_model>)
+target_include_directories(cd_render_diff PRIVATE "${_cd_engine}/runner/cd" "${_cd_engine}/runner/video")
+target_compile_features(cd_render_diff PRIVATE c_std_11)
+add_test(NAME cd_render_diff COMMAND cd_render_diff)
+foreach(_lookup_variant cached reference)
+    add_executable(cd_catalog_${_lookup_variant}_test tests/catalog_lookup_test.c
+        "${_cd_engine}/external/m68k-recomp-core/runtime/m68k_step.c")
+    target_include_directories(cd_catalog_${_lookup_variant}_test PRIVATE
+        "${_cd_engine}/runner/cd" "${_cd_engine}/external/m68k-recomp-core/runtime")
+    target_compile_features(cd_catalog_${_lookup_variant}_test PRIVATE c_std_11)
+    if(_lookup_variant STREQUAL "reference")
+        target_compile_definitions(cd_catalog_${_lookup_variant}_test PRIVATE SEGACD_CATALOG_LOOKUP_CACHE=0)
+    endif()
+    add_test(NAME cd_catalog_${_lookup_variant} COMMAND cd_catalog_${_lookup_variant}_test)
+endforeach()
