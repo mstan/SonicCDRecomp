@@ -100,7 +100,7 @@ def build(args: argparse.Namespace) -> dict:
             '-DCMAKE_BUILD_TYPE=Release', *configure], env)
     invoke([cmake, '--build', str(output), '--config', 'Release',
             '--target', 'SonicCD', '--parallel', str(args.jobs)], env)
-    result = {'version':'0.0.3', 'executable':str(executable(output,'SonicCD')),
+    result = {'version':'0.0.4', 'executable':str(executable(output,'SonicCD')),
               'catalogs':str(catalogs), 'build_directory':str(output),
               'engine_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ENGINE,text=True).strip(),
               'configured':True,'built':True}

@@ -3,7 +3,7 @@
 Play the original **Sonic CD** on Windows and Linux, with native recompilation,
 recomp-ui settings, adaptive widescreen and faster resident file loading.
 
-[Download 0.0.3](https://github.com/mstan/SonicCDRecomp/releases/tag/v0.0.3) ·
+[Download 0.0.4](https://github.com/mstan/SonicCDRecomp/releases/tag/v0.0.4) ·
 [Getting started](#getting-started) · [Build from source](docs/BUILDING.md) ·
 [Report a bug](https://github.com/mstan/SonicCDRecomp/issues/new/choose)
 
@@ -30,7 +30,7 @@ included. This release supports one qualified disc/BIOS revision; see
 
 **Windows 10/11 x64**
 
-1. Download and extract `SonicCD-0.0.3-windows-x64.zip` into a writable folder.
+1. Download and extract `SonicCD-0.0.4-windows-x64.zip` into a writable folder.
 2. Run `SonicCD.cmd` and choose your BIOS and disc image when prompted.
 3. Press **Enter** at the original title/menu screens to start.
 

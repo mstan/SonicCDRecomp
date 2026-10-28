@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.4 - 2026-10-28
+
+Windows x64 update pinned to the approved shared engine. Reduces repeated original-image composition, uses owned guarded instruction spans and compact equivalent native catalogs, and retains complete media validation and portable fallback. Existing resident native loading service is unchanged. Owner visual checks and matched state/pixel/audio qualification passed. No universal frame-rate claim; earlier Linux release remains available.
+
 ## 0.0.3 - 2026-10-27
 
 - Keep the verified data track resident and service ordinary game file reads

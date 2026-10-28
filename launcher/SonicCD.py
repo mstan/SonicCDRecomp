@@ -143,12 +143,12 @@ def run(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    parser=argparse.ArgumentParser(description='Sonic CD Recompiled 0.0.3')
+    parser=argparse.ArgumentParser(description='Sonic CD Recompiled 0.0.4')
     parser.add_argument('--bios',type=Path)
     parser.add_argument('--disc',type=Path)
     parser.add_argument('--data-root',type=Path)
     parser.add_argument('--mute',action='store_true')
-    parser.add_argument('--version',action='version',version='Sonic CD Recompiled 0.0.3')
+    parser.add_argument('--version',action='version',version='Sonic CD Recompiled 0.0.4')
     parser.add_argument('runner_args',nargs=argparse.REMAINDER)
     try:return run(parser.parse_args())
     except (OSError,ValueError,subprocess.CalledProcessError) as error:
