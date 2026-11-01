@@ -1,6 +1,9 @@
 import importlib.util
 import json
+import os
 from pathlib import Path
+import shutil
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -51,6 +54,37 @@ class ProfileTests(unittest.TestCase):
 
 
 class DiscCacheTests(unittest.TestCase):
+    @unittest.skipUnless(os.name=='nt','Windows launcher contract')
+    def test_windows_cached_launch_passes_complete_identity(self):
+        compiler=Path('C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe')
+        if not compiler.is_file():self.skipTest('Windows argument fixture compiler unavailable')
+        engine=Path(os.environ.get('GENESIS_RECOMP_ROOT',ROOT/'external/segagenesisrecomp'))
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);payload=root/'game package';data=root/'user profile'
+            (payload/'tools/segacd').mkdir(parents=True);data.mkdir()
+            shutil.copy2(ROOT/'launcher/SonicCD.ps1',payload/'SonicCD.ps1')
+            shutil.copy2(engine/'tools/segacd/disc_image.py',payload/'tools/segacd/disc_image.py')
+            (payload/'SDL2.dll').write_bytes(b'argument fixture only; never loaded')
+            (payload/'package-manifest.json').write_text('{}')
+            source=root/'Args.cs'
+            source.write_text('using System; using System.IO; public class Args { public static int Main(string[] args) { File.WriteAllLines(Environment.GetEnvironmentVariable("GENESIS_LAUNCH_ARGS_OUT"), args); return 0; } }')
+            subprocess.run([str(compiler),'/nologo','/out:'+str(payload/'SonicCD.exe'),str(source)],check=True,capture_output=True)
+            bios=root/'bios fixture.bin';bios.write_bytes(bytes(131072))
+            track=root/'track data.bin';track.write_bytes(bytes(2*2352))
+            cue=root/'source disc.cue';cue.write_text('FILE "track data.bin" BINARY\n TRACK 01 AUDIO\n INDEX 01 00:00:00\n')
+            (data/'portable-config.json').write_text(json.dumps({'schema':launcher.SCHEMA,'bios_path':str(bios),'disc_path':str(cue)}))
+            observed=root/'arguments.txt';env={**os.environ,'GENESIS_LAUNCH_ARGS_OUT':str(observed)}
+            command=['powershell.exe','-NoProfile','-NonInteractive','-File',str(payload/'SonicCD.ps1'),'-DataRoot',str(data)]
+            subprocess.run(command,env=env,check=True,capture_output=True,text=True)
+            first=observed.read_text(encoding='utf-8-sig').splitlines()
+            self.assertNotIn('--disc-image-sha256',first)
+            manifest=json.loads(next((data/'disc').glob('*.json')).read_text(encoding='utf-8-sig'))
+            subprocess.run(command,env=env,check=True,capture_output=True,text=True)
+            second=observed.read_text(encoding='utf-8-sig').splitlines()
+            self.assertEqual(second[second.index('--disc-image-sha256')+1],manifest['sgcd_sha256'])
+            self.assertEqual(first[first.index('--disc')+1],second[second.index('--disc')+1])
+            self.assertEqual(second[second.index('--bios')+1],str(bios))
+
     def test_launch_hands_off_expectation_without_rehashing_cache(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);cue=root/'owned.cue';cue.write_text('fixture')
