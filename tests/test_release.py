@@ -51,6 +51,26 @@ class ProfileTests(unittest.TestCase):
 
 
 class DiscCacheTests(unittest.TestCase):
+    def test_launch_hands_off_expectation_without_rehashing_cache(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);cue=root/'owned.cue';cue.write_text('fixture')
+            identity={'schema':'SGCDCueSourceIdentity1','fixture':'handoff'}
+            def convert(command,**kwargs):Path(command[-1]).write_bytes(b'synthetic converted image')
+            with patch.object(launcher,'inspect_cue',return_value=identity),patch.object(launcher.subprocess,'run',side_effect=convert):
+                expected={}
+                output=launcher.prepare_disc(cue,root,root/'converter.py',{},expected_image=expected)
+                self.assertEqual(expected,{})  # first conversion keeps existing verification
+                digest=launcher.file_hash(output)
+                with patch.object(launcher,'file_hash',side_effect=AssertionError('duplicate cache read')):
+                    self.assertEqual(launcher.prepare_disc(cue,root,root/'converter.py',{},expected_image=expected),output)
+                self.assertEqual(expected,{'sha256':digest})
+                output.write_bytes(b'corruption must be rejected by the actual runner')
+                launcher.prepare_disc(cue,root,root/'converter.py',{},expected_image=expected)
+                self.assertEqual(expected,{'sha256':digest})  # expectation never follows changed content
+                saved=json.loads(output.with_suffix('.json').read_text());saved['sgcd_sha256']='not-a-hash'
+                output.with_suffix('.json').write_text(json.dumps(saved))
+                with self.assertRaises(ValueError):launcher.prepare_disc(cue,root,root/'converter.py',{},expected_image=expected)
+
     def test_cache_reused_and_tampered_content_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);cue=root/'owned.cue';cue.write_text('synthetic test fixture')
