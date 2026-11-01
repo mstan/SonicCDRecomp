@@ -164,6 +164,7 @@ if (-not $discPath -or -not (Test-Path -LiteralPath $discPath -PathType Leaf)) {
 }
 
 $runDisc = [IO.Path]::GetFullPath($discPath)
+$discImageSha256 = $null
 if ([IO.Path]::GetExtension($runDisc).Equals('.cue', [StringComparison]::OrdinalIgnoreCase)) {
     $cuePath = $runDisc
     $python = $null
@@ -210,10 +211,13 @@ if ([IO.Path]::GetExtension($runDisc).Equals('.cue', [StringComparison]::Ordinal
             $cacheManifest.source_identity_json -cne $identityJson) {
             throw "Converted-disc cache source identity is invalid: $runDisc"
         }
-        $cachedHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $runDisc).Hash.ToLowerInvariant()
-        if ($cachedHash -ne ([string]$cacheManifest.sgcd_sha256).ToLowerInvariant()) {
-            throw "Converted-disc cache content has changed: $runDisc"
+        $expectedHash = [string]$cacheManifest.sgcd_sha256
+        if ($expectedHash -notmatch '^[0-9a-fA-F]{64}$') {
+            throw "Converted-disc cache identity is malformed: $runDisc"
         }
+        # The runner verifies this whole-image expectation and the actual
+        # payload together, retaining the protected verified file afterward.
+        $discImageSha256 = $expectedHash.ToLowerInvariant()
     } elseif (Test-Path -LiteralPath $cacheManifestPath -PathType Leaf) {
         throw "Converted-disc cache manifest exists without its image: $runDisc"
     } else {
@@ -260,6 +264,7 @@ if (-not (Test-Path -LiteralPath $backupPath -PathType Leaf) -and
 $logPath = Join-Path $dataRootFull 'logs\SonicCD.log'
 $arguments = @('--bios', $config.bios_path, '--disc', $runDisc,
                '--backup', $backupPath, '--settings', $settingsPath)
+if ($discImageSha256) { $arguments += @('--disc-image-sha256', $discImageSha256) }
 Push-Location $dataRootFull
 try {
     & $exe @arguments *>> $logPath
