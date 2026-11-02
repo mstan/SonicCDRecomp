@@ -30,5 +30,5 @@ jobs:
       - name: Build synthetic suite without owned game inputs
         run: |
           cmake -S external/segagenesisrecomp/tests/segacd -B build-tests -DCMAKE_BUILD_TYPE=Debug
-          cmake --build build-tests --target segacd_test_suite --parallel 4
+          cmake --build build-tests --parallel 4
           ctest --test-dir build-tests --output-on-failure
