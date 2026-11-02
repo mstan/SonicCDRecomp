@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5 - 2026-11-01
+
+Windows x64 update pinned to the completed shared engine optimization campaign. Uses whole-program native optimization and a fresh game profile, with less repeated execution and memory work. Adds optional GPU internal resolution for hardware-rendered native scenes; existing custom and widescreen presentation remains available. Preserves native backup RAM, deterministic audio and current-build restore behavior. Automated matched gameplay, native output/audio/BRAM and full16x readback qualification passed before release; results are workload-specific, not a universal frame-rate claim. Earlier Linux builds remain available.
+
 ## 0.0.4 - 2026-10-28
 
 Windows x64 update pinned to the approved shared engine. Reduces repeated original-image composition, uses owned guarded instruction spans and compact equivalent native catalogs, and retains complete media validation and portable fallback. Existing resident native loading service is unchanged. Owner visual checks and matched state/pixel/audio qualification passed. No universal frame-rate claim; earlier Linux release remains available.
