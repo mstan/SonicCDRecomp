@@ -19,7 +19,7 @@ EMPTY_BRAM_SHA='4390aad972163d9bbc8a8cd7d32e86b216e5a17a0d795c7d230942155e6a895b
 CRT_DLLS={'vcruntime140.dll','vcruntime140_1.dll','vcruntime140_threads.dll',
           'msvcp140.dll','msvcp140_1.dll','msvcp140_2.dll','msvcp140_atomic_wait.dll',
           'msvcp140_codecvt_ids.dll','concrt140.dll'}
-PUBLIC_FILES={'LICENSE','THIRD-PARTY-LICENSES.md','README-portable-windows.md','README.txt',
+PUBLIC_FILES={'LICENSE', 'PERMISSIONS.md','THIRD-PARTY-LICENSES.md','README-portable-windows.md','README.txt',
               'SonicCD.exe','SDL2.dll','SonicCD.ps1','SonicCD.cmd','SonicCD','SonicCD.py',
               'BUILD-INFO.json','tools/segacd/disc_image.py','seed/sonic-cd.brm',
               'userdata/portable-config.json'}|CRT_DLLS
@@ -177,6 +177,7 @@ def stage_linux(args: argparse.Namespace) -> dict:
     shutil.copyfile(ROOT/'launcher/SonicCD.py',payload/'SonicCD.py')
     shutil.copyfile(ROOT/'launcher/AppRun',destination/'AppRun');(destination/'AppRun').chmod(0o755)
     for source,target in [(ROOT/'LICENSE',payload/'LICENSE'),
+                          (ROOT/'PERMISSIONS.md',payload/'PERMISSIONS.md'),
                           (ROOT/'THIRD-PARTY-LICENSES.md',payload/'THIRD-PARTY-LICENSES.md'),
                           (ROOT/'release/README.txt',payload/'README.txt')]:shutil.copyfile(source,target)
     licenses=payload/'licenses';shutil.copytree(args.licenses_dir,licenses)
