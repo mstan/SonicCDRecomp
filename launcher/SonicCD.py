@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -64,7 +65,9 @@ def inspect_cue(converter: Path, cue: Path, env: dict) -> dict:
     return value
 
 
-def prepare_disc(disc: Path, data: Path, converter: Path, env: dict) -> Path:
+def prepare_disc(disc: Path, data: Path, converter: Path, env: dict,
+                 *, expected_image: dict | None = None) -> Path:
+    if expected_image is not None:expected_image.clear()
     disc=disc.resolve(strict=True)
     if disc.suffix.lower()=='.sgcd':return disc
     if disc.suffix.lower()!='.cue':raise ValueError('Select an SGCD image or a CUE/BIN disc set.')
@@ -75,8 +78,17 @@ def prepare_disc(disc: Path, data: Path, converter: Path, env: dict) -> Path:
     if output.exists() or manifest.exists():
         if not output.is_file() or not manifest.is_file():raise ValueError('Incomplete converted-disc cache; move its matching image/manifest aside and retry.')
         saved=json.loads(manifest.read_text())
-        if saved.get('schema')!='SonicCDCueCache1' or saved.get('source_identity')!=identity or saved.get('sgcd_sha256')!=file_hash(output):
+        digest=saved.get('sgcd_sha256')
+        if (saved.get('schema')!='SonicCDCueCache1' or saved.get('source_identity')!=identity or
+                not isinstance(digest,str) or not re.fullmatch(r'[0-9a-fA-F]{64}',digest)):
             raise ValueError('Converted-disc cache content changed; move its matching image/manifest aside and retry.')
+        if expected_image is None:
+            if digest.lower()!=file_hash(output):
+                raise ValueError('Converted-disc cache content changed; move its matching image/manifest aside and retry.')
+        else:
+            # An expectation, never proof: the runner checks this complete
+            # identity AND its payload identity before using its owned image.
+            expected_image['sha256']=digest.lower()
         return output
     temporary=output.with_suffix('.partial.sgcd')
     try:
@@ -123,7 +135,9 @@ def run(args: argparse.Namespace) -> int:
     if disc is None or not disc.is_file():disc=select_file('Sonic CD - select your disc image',env)
     bios=bios.resolve(strict=True);disc=disc.resolve(strict=True)
     if not bios.is_file() or not disc.is_file():raise ValueError('Selected input is not a regular file.')
-    converted=prepare_disc(disc,data,payload/'tools/segacd/disc_image.py',env)
+    expected_image={}
+    converted=prepare_disc(disc,data,payload/'tools/segacd/disc_image.py',env,
+                           expected_image=expected_image)
     config.update(bios_path=str(bios),disc_path=str(disc));atomic_json(config_path,config)
     settings,backup=seed_profile(data,payload)
     binary=payload/'SonicCD'
@@ -135,6 +149,7 @@ def run(args: argparse.Namespace) -> int:
     if libraries.is_dir():native_env['LD_LIBRARY_PATH']=str(libraries)
     arguments=[str(binary),'--bios',str(bios),'--disc',str(converted),
                '--backup',str(backup),'--settings',str(settings)]
+    if expected_image:arguments+=['--disc-image-sha256',expected_image['sha256']]
     if args.mute:arguments.append('--mute')
     arguments.extend(args.runner_args[1:] if args.runner_args[:1]==['--'] else args.runner_args)
     logs=data/'logs';logs.mkdir(exist_ok=True)
