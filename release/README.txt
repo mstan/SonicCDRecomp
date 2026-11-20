@@ -25,6 +25,6 @@ https://github.com/mstan/SonicCDRecomp/blob/main/docs/VALIDATION.md
 
 Project code: PolyForm Noncommercial1.0.0, included as LICENSE.
 Component terms: THIRD-PARTY-LICENSES.md and licenses/.
-Engine source: https://github.com/mstan/segagenesisrecomp/tree/feature/segacd-backend
+Engine source: https://github.com/mstan/segacdrecomp
 Generated code does not grant rights to the original game. SonicCD and its
 characters belong to SEGA. This is an unofficial fan project.
