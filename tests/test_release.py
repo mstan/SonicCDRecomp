@@ -60,7 +60,7 @@ class DiscCacheTests(unittest.TestCase):
         if not compiler.is_file():self.skipTest('Windows argument fixture compiler unavailable')
         engine=package.ENGINE
         if not (engine/'tools/segacd/disc_image.py').is_file():
-            self.skipTest('Sega CD engine access required for real converter coverage')
+            self.skipTest('Initialize the Sega CD engine for real converter coverage')
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);payload=root/'game package';data=root/'user profile'
             (payload/'tools/segacd').mkdir(parents=True);data.mkdir()

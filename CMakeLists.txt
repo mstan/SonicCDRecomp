@@ -4,7 +4,7 @@ project(SonicCDRecomp VERSION 0.0.5 LANGUAGES C CXX)
 set(SEGACD_ENGINE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/external/segacdrecomp"
     CACHE PATH "Shared Sega CD engine source root")
 if(NOT EXISTS "${SEGACD_ENGINE_ROOT}/runner/cd/machine.h")
-    message(FATAL_ERROR "Initialize the private Sega CD engine submodule. See docs/BUILDING.md.")
+    message(FATAL_ERROR "Initialize the Sega CD engine submodule. See docs/BUILDING.md.")
 endif()
 if(SEGACD_BUILD_NATIVE_RUNNER AND NOT SEGACD_BIOS_PROBE_MODULE_DIR)
     message(FATAL_ERROR "Generate and validate the owned-input catalogs with tools/build.py first.")
