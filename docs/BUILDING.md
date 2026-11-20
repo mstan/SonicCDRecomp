@@ -1,9 +1,8 @@
 # Build from owned inputs
 
-This branch uses the private Sega CD engine. Use a GitHub SSH identity with
-read access to `mstan/segacdrecomp`. The game pins the engine and a Z80
-generation frontend. BIOS images, discs and generated catalogs stay in your
-local build directory.
+This branch pins the public [segacdrecomp engine](https://github.com/mstan/segacdrecomp)
+and a Z80 generation frontend. BIOS images, discs and generated catalogs stay
+in your local build directory.
 
 ```sh
 git clone --branch codex/segacdrecomp-migration https://github.com/mstan/SonicCDRecomp.git

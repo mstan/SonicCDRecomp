@@ -47,6 +47,3 @@ Both staging commands accept `--blank-seed PATH`. Component license texts must
 be supplied from the compiled runtime. The Linux bundler checks its tools,
 bundles runtime libraries and their copyright/license notices, and keeps the
 host Python/dialog environment separate from the game's library search path.
-
-The migration branch requires access to the private Sega CD engine. Use local
-qualification packages for this branch and publish no migration release.

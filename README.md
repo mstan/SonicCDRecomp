@@ -83,10 +83,10 @@ the separate S3K campaign adaptation, Shadow mod, netplay or save-state/rewind U
 
 ## Source and credits
 
-This migration branch pins the private [Sega CD engine](https://github.com/mstan/segacdrecomp),
-which pins the shared Genesis hardware and CPU cores. Building the branch
-requires read access to that engine. The public release line uses its existing
-build instructions.
+This branch pins [segacdrecomp](https://github.com/mstan/segacdrecomp), the shared
+Sega CD engine for native recompilation. The engine supplies the Sega CD devices,
+execution timeline and catalog tools, and pins the shared Genesis hardware and
+CPU cores. Sonic CD supplies the title-specific code and input recipe.
 The [build guide](docs/BUILDING.md) explains the owned-input generation pipeline.
 
 Project code uses [PolyForm Noncommercial 1.0.0](LICENSE).

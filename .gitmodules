@@ -3,4 +3,4 @@
 	url = https://github.com/mstan/smsggrecomp.git
 [submodule "external/segacdrecomp"]
 	path = external/segacdrecomp
-	url = git@github.com:mstan/segacdrecomp.git
+	url = https://github.com/mstan/segacdrecomp.git
