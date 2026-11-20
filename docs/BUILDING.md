@@ -1,19 +1,18 @@
 # Build from owned inputs
 
-The source pins the engine's Sega CD feature branch and a Z80 generation
-frontend. The engine pins the shared M68K/Z80 cores. No generated game-code
-catalogs or original BIOS/disc images are checked in.
+This branch uses the private Sega CD engine. Use a GitHub SSH identity with
+read access to `mstan/segacdrecomp`. The game pins the engine and a Z80
+generation frontend. BIOS images, discs and generated catalogs stay in your
+local build directory.
 
 ```sh
-git clone https://github.com/mstan/SonicCDRecomp.git
+git clone --branch codex/segacdrecomp-migration https://github.com/mstan/SonicCDRecomp.git
 cd SonicCDRecomp
-git submodule update --init external/segagenesisrecomp external/z80-frontend
-git -C external/segagenesisrecomp submodule update --init \
+git submodule update --init external/segacdrecomp external/z80-frontend
+git -C external/segacdrecomp submodule update --init external/segagenesisrecomp
+git -C external/segacdrecomp/external/segagenesisrecomp submodule update --init \
   external/m68k-recomp-core external/z80-recomp-core
 ```
-
-Only these submodules are required for this game. The engine's unrelated
-Genesis games/netplay/disassembly submodules aren't needed by the CD target.
 
 Requirements: Python3.10+, CMake3.21+, Git and a C11/C++17 compiler. Windows
 uses MSVC and the pinned SDL2 SDK. Linux needs GCC/Clang, SDL2 development files
@@ -51,17 +50,16 @@ paths are platform-specific. Keep large scratch/output directories off C: when
 using the upstream Windows tools. `--cmake`, `--sdl2-dir` and `--generator`
 override toolchain locations without editing source.
 
-For the detailed generation contract, see the pinned engine's
-`docs/SONIC_CD_NATIVE_BUILD.md`. The compressed recipe contains addresses,
+See [native catalog generation](SONIC_CD_NATIVE_BUILD.md) for details. The compressed recipe contains addresses,
 source identities and capture procedures, rather than copied instruction images.
 
 ## Tests
 
 ```sh
 python3 -m unittest discover -s tests -v
-cmake -S external/segagenesisrecomp/tests/segacd -B build-tests
-cmake --build build-tests --target segacd_test_suite --parallel 4
-ctest --test-dir build-tests --output-on-failure
+cmake -S . -B build-tests
+cmake --build build-tests --config Release --parallel 4
+ctest --test-dir build-tests -C Release --output-on-failure --timeout 0
 ```
 
 Owned-input gameplay validation is separate from synthetic tests; see

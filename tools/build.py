@@ -11,7 +11,8 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-ENGINE = ROOT / 'external/segagenesisrecomp'
+ENGINE = ROOT / 'external/segacdrecomp'
+GENESIS = ENGINE / 'external/segagenesisrecomp'
 
 
 def invoke(command: list[str], env: dict[str, str]) -> None:
@@ -62,8 +63,8 @@ def build(args: argparse.Namespace) -> dict:
     catalogs = args.catalogs.resolve(strict=True) if args.catalogs else work/'catalogs'
     if not args.catalogs:
         tool_build, z80_build = work/'tools', work/'z80-frontend'
-        invoke([cmake, '-S', str(ENGINE/'tests/segacd'), '-B', str(tool_build),
-                '-DCMAKE_BUILD_TYPE=Release', *configure], env)
+        invoke([cmake, '-S', str(ENGINE), '-B', str(tool_build),
+                '-DCMAKE_BUILD_TYPE=Release', '-DBUILD_TESTING=OFF', *configure], env)
         invoke([cmake, '--build', str(tool_build), '--config', 'Release', '--parallel', str(args.jobs),
                 '--target', 'segacd_module_recompiler', 'segacd_bios_floor_probe'], env)
         invoke([cmake, '-S', str(ROOT/'external/z80-frontend/recompiler'), '-B', str(z80_build),
@@ -71,7 +72,7 @@ def build(args: argparse.Namespace) -> dict:
         invoke([cmake, '--build', str(z80_build), '--config', 'Release', '--parallel', str(args.jobs),
                 '--target', 'SmsRecomp'], env)
         command = [sys.executable, str(ENGINE/'tools/segacd/owned_native_generate.py'),
-                   '--recipe', str(ENGINE/'tools/segacd/sonic_cd_us_recipe.json.gz'),
+                   '--recipe', str(ROOT/'tools/segacd/sonic_cd_us_recipe.json.gz'),
                    '--source-root', str(ENGINE), '--bios', str(bios), '--disc', str(disc),
                    '--generator', str(executable(tool_build, 'segacd_module_recompiler')),
                    '--probe', str(executable(tool_build, 'segacd_bios_floor_probe')),
@@ -83,7 +84,7 @@ def build(args: argparse.Namespace) -> dict:
     sdl_dir = args.sdl2_dir
     if sdl_dir is None:
         if os.name == 'nt':
-            sdl_dir = ENGINE/'runner/external/SDL2/SDL2-2.28.5/cmake'
+            sdl_dir = GENESIS/'runner/external/SDL2/SDL2-2.28.5/cmake'
         else:
             libdir = subprocess.check_output(['pkg-config','--variable=libdir','sdl2'],
                                              env=env, text=True).strip()
@@ -91,6 +92,7 @@ def build(args: argparse.Namespace) -> dict:
     output = work/'game'
     invoke([sys.executable, str(ENGINE/'tools/segacd/native_catalog_build.py'),
             '--source-root', str(ENGINE), '--bios', str(bios), '--disc', str(disc),
+            '--consumer-root', str(ROOT),
             '--catalog-manifest', str(catalogs/'catalog-manifest.json'),
             '--base-catalogs', str(catalogs/'base-catalogs.txt'),
             '--append-overlays', str(catalogs/'append-overlays.txt'),
@@ -103,6 +105,7 @@ def build(args: argparse.Namespace) -> dict:
     result = {'version':'0.0.5', 'executable':str(executable(output,'SonicCD')),
               'catalogs':str(catalogs), 'build_directory':str(output),
               'engine_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ENGINE,text=True).strip(),
+              'genesis_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=GENESIS,text=True).strip(),
               'configured':True,'built':True}
     (work/'build-result.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     return result

@@ -58,7 +58,9 @@ class DiscCacheTests(unittest.TestCase):
     def test_windows_cached_launch_passes_complete_identity(self):
         compiler=Path('C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe')
         if not compiler.is_file():self.skipTest('Windows argument fixture compiler unavailable')
-        engine=Path(os.environ.get('GENESIS_RECOMP_ROOT',ROOT/'external/segagenesisrecomp'))
+        engine=package.ENGINE
+        if not (engine/'tools/segacd/disc_image.py').is_file():
+            self.skipTest('Sega CD engine access required for real converter coverage')
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);payload=root/'game package';data=root/'user profile'
             (payload/'tools/segacd').mkdir(parents=True);data.mkdir()

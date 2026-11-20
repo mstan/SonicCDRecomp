@@ -83,12 +83,10 @@ the separate S3K campaign adaptation, Shadow mod, netplay or save-state/rewind U
 
 ## Source and credits
 
-This game repository pins the reusable
-[segagenesisrecomp Sega CD backend](https://github.com/mstan/segagenesisrecomp/tree/feature/segacd-backend),
-[M68K core](https://github.com/mstan/m68k-recomp-core),
-[Z80 core](https://github.com/mstan/z80-recomp-core), and
-[recomp-ui](https://github.com/mstan/recomp-ui). The shared backend remains on
-its feature branch; this release does not merge it into the engine's main branch.
+This migration branch pins the private [Sega CD engine](https://github.com/mstan/segacdrecomp),
+which pins the shared Genesis hardware and CPU cores. Building the branch
+requires read access to that engine. The public release line uses its existing
+build instructions.
 The [build guide](docs/BUILDING.md) explains the owned-input generation pipeline.
 
 Project code uses [PolyForm Noncommercial 1.0.0](LICENSE).

@@ -13,7 +13,8 @@ import sys
 import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
-ENGINE=Path(os.environ.get('GENESIS_RECOMP_ROOT',ROOT/'external/segagenesisrecomp')).resolve()
+ENGINE=Path(os.environ.get('SEGACD_ENGINE_ROOT',ROOT/'external/segacdrecomp')).resolve()
+GENESIS=ENGINE/'external/segagenesisrecomp'
 VERSION='0.0.5'
 EMPTY_BRAM_SHA='4390aad972163d9bbc8a8cd7d32e86b216e5a17a0d795c7d230942155e6a895b'
 CRT_DLLS={'vcruntime140.dll','vcruntime140_1.dll','vcruntime140_threads.dll',
@@ -40,8 +41,9 @@ def source_info() -> dict:
     return {'project':'SonicCDRecomp','version':VERSION,
             'source_url':'https://github.com/mstan/SonicCDRecomp',
             'game_revision':git_head(ROOT),'engine_revision':git_head(ENGINE),
-            'm68k_core_revision':git_head(ENGINE/'external/m68k-recomp-core'),
-            'z80_core_revision':git_head(ENGINE/'external/z80-recomp-core'),
+            'genesis_revision':git_head(GENESIS),
+            'm68k_core_revision':git_head(GENESIS/'external/m68k-recomp-core'),
+            'z80_core_revision':git_head(GENESIS/'external/z80-recomp-core'),
             'z80_frontend_revision':git_head(ROOT/'external/z80-frontend')}
 
 
@@ -128,7 +130,8 @@ def stage_windows(args: argparse.Namespace) -> dict:
     destination=args.destination.resolve()
     check_seed(args.blank_seed)
     audit_licenses(args.licenses_dir)
-    command=[sys.executable,str(ENGINE/'tools/segacd/package_windows.py'),'create',
+    command=[sys.executable,str(ROOT/'tools/segacd/package_windows.py'),'create',
+             '--engine-root',str(ENGINE),
              '--exe',str(args.exe),'--sdl2-dll',str(args.sdl2_dll),
              '--destination',str(destination),'--licenses-dir',str(args.licenses_dir)]
     if args.blank_seed:command+=['--blank-backup-seed',str(args.blank_seed)]
@@ -181,10 +184,10 @@ def stage_linux(args: argparse.Namespace) -> dict:
                           (ROOT/'THIRD-PARTY-LICENSES.md',payload/'THIRD-PARTY-LICENSES.md'),
                           (ROOT/'release/README.txt',payload/'README.txt')]:shutil.copyfile(source,target)
     licenses=payload/'licenses';shutil.copytree(args.licenses_dir,licenses)
-    notices={'SDL2.txt':'runner/external/SDL2/SDL2-2.28.5/COPYING.txt',
-             'ymfm.txt':'runner/external/ymfm/LICENSE','ares.txt':'runner/cd/ARES-LICENSE.txt',
-             'm68k-recomp-core.txt':'external/m68k-recomp-core/LICENSE','z80-recomp-core.txt':'external/z80-recomp-core/LICENSE'}
-    for name,relative in notices.items():shutil.copyfile(ENGINE/relative,licenses/name)
+    from segacd.package_windows import source_notices
+    for name,source in source_notices(ENGINE).items():
+        if name.startswith('licenses/'):
+            shutil.copyfile(source,payload/name)
     converter=payload/'tools/segacd';converter.mkdir(parents=True)
     shutil.copyfile(ENGINE/'tools/segacd/disc_image.py',converter/'disc_image.py')
     if args.blank_seed:

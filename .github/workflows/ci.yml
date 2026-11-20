@@ -19,16 +19,3 @@ jobs:
         env:
           PYTHONDONTWRITEBYTECODE: '1'
         run: python -m unittest discover -s tests -v
-  upstream-synthetic:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Initialize only the backend and CPU cores
-        run: |
-          git submodule update --init external/segagenesisrecomp
-          git -C external/segagenesisrecomp submodule update --init external/m68k-recomp-core external/z80-recomp-core
-      - name: Build synthetic suite without owned game inputs
-        run: |
-          cmake -S external/segagenesisrecomp/tests/segacd -B build-tests -DCMAKE_BUILD_TYPE=Debug
-          cmake --build build-tests --parallel 4
-          ctest --test-dir build-tests --output-on-failure

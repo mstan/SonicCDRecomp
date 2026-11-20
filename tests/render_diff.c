@@ -1,7 +1,7 @@
 /* Reuse the upstream synthetic contract, then compare against its unchanged
  * scalar renderer on randomized live-raster/published-world inputs. */
 #define main upstream_renderer_contract
-#include "../external/segagenesisrecomp/tests/segacd/sonic_cd_render_test.c"
+#include "sonic_cd_render_test.c"
 #undef main
 extern int reference_render(const SegaCDRender *,const GVDP *,unsigned,uint32_t *,size_t);
 static uint32_t rng=0x47553291u;

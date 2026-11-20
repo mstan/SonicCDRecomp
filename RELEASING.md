@@ -48,6 +48,5 @@ be supplied from the compiled runtime. The Linux bundler checks its tools,
 bundles runtime libraries and their copyright/license notices, and keeps the
 host Python/dialog environment separate from the game's library search path.
 
-Keep the engine's Sega CD implementation on `feature/segacd-backend` until its
-separate upstream merge is requested. Publishing this game does not authorize
-merging unrelated campaign/Shadow or framework work into main/master.
+The migration branch requires access to the private Sega CD engine. Use local
+qualification packages for this branch and publish no migration release.
