@@ -90,6 +90,8 @@ This game repository pins the reusable
 [recomp-ui](https://github.com/mstan/recomp-ui). The shared backend remains on
 its feature branch; this release does not merge it into the engine's main branch.
 The [build guide](docs/BUILDING.md) explains the owned-input generation pipeline.
+The [standalone segacdrecomp engine](https://github.com/mstan/segacdrecomp) is used
+by the [Sonic CD migration branch](https://github.com/mstan/SonicCDRecomp/tree/codex/segacdrecomp-migration).
 
 Project code uses [PolyForm Noncommercial 1.0.0](LICENSE).
 [Third-party notices](THIRD-PARTY-LICENSES.md) and component license texts ship
