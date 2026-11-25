@@ -1,3 +1,4 @@
+#include <recomp_input.h>
 /* Small original-program consumer for the reusable Sega CD machine.
  * Window/audio delivery never drives emulated clocks. */
 #include "machine.h"
@@ -100,7 +101,8 @@ static uint16_t controller_pad(SDL_GameController *pad)
 {
     if(!pad)return 0;
     uint16_t mask=0;
-#define BUTTON(sdl,gen) if(SDL_GameControllerGetButton(pad,sdl))mask|=gen
+ri_device snapshot={0};
+#define BUTTON(sdl,gen) do { if(SDL_GameControllerGetButton(pad,sdl))snapshot.buttons|=1u<<(sdl); if(ri_binding_held(&snapshot,RI_BUTTON(sdl),16000))mask|=gen; } while(0)
     BUTTON(SDL_CONTROLLER_BUTTON_DPAD_UP,GPAD_UP);BUTTON(SDL_CONTROLLER_BUTTON_DPAD_DOWN,GPAD_DOWN);
     BUTTON(SDL_CONTROLLER_BUTTON_DPAD_LEFT,GPAD_LEFT);BUTTON(SDL_CONTROLLER_BUTTON_DPAD_RIGHT,GPAD_RIGHT);
     BUTTON(SDL_CONTROLLER_BUTTON_X,GPAD_A);BUTTON(SDL_CONTROLLER_BUTTON_A,GPAD_B);
