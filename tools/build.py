@@ -68,7 +68,8 @@ def build(args: argparse.Namespace) -> dict:
         invoke([cmake, '--build', str(tool_build), '--config', 'Release', '--parallel', str(args.jobs),
                 '--target', 'segacd_module_recompiler', 'segacd_bios_floor_probe'], env)
         invoke([cmake, '-S', str(ROOT/'external/z80-frontend/recompiler'), '-B', str(z80_build),
-                '-DCMAKE_BUILD_TYPE=Release', *configure], env)
+                '-DCMAKE_BUILD_TYPE=Release',
+                '-DRECOMP_SHARED_CORE_ROOT=' + str(GENESIS/'external'), *configure], env)
         invoke([cmake, '--build', str(z80_build), '--config', 'Release', '--parallel', str(args.jobs),
                 '--target', 'SmsRecomp'], env)
         command = [sys.executable, str(ENGINE/'tools/segacd/owned_native_generate.py'),
