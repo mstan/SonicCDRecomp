@@ -10,7 +10,12 @@ if(SEGACD_BUILD_NATIVE_RUNNER AND NOT SEGACD_BIOS_PROBE_MODULE_DIR)
     message(FATAL_ERROR "Generate and validate the owned-input catalogs with tools/build.py first.")
 endif()
 
-set(genesis_root "${SEGACD_ENGINE_ROOT}/external/segagenesisrecomp")
+set(GENESIS_RECOMP_ROOT "" CACHE PATH "Optional shared Genesis engine checkout")
+if(GENESIS_RECOMP_ROOT)
+  set(genesis_root "${GENESIS_RECOMP_ROOT}")
+else()
+  set(genesis_root "${SEGACD_ENGINE_ROOT}/external/segagenesisrecomp")
+endif()
 set(cd_runner "${SEGACD_ENGINE_ROOT}/runner/cd")
 set(sonic_cd_video_sources
     game/sonic_cd_world.c game/sonic_cd_view.c game/sonic_cd_culls.c
