@@ -7,7 +7,6 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import shutil
-import struct
 import subprocess
 import sys
 import zipfile
@@ -52,32 +51,16 @@ def check_seed(seed: Path | None) -> None:
         raise ValueError('Only the qualified empty BIOS-formatted BRAM seed may be packaged.')
 
 
-def pe_imports(path: Path) -> set[str]:
-    data=path.read_bytes()
-    if data[:2]!=b'MZ':raise ValueError(f'Not a Windows executable: {path.name}')
-    pe=struct.unpack_from('<I',data,0x3c)[0]
-    if data[pe:pe+4]!=b'PE\0\0':raise ValueError('Invalid PE signature.')
-    machine,count=struct.unpack_from('<HH',data,pe+4)
-    if machine!=0x8664:raise ValueError('The initial Windows release requires x64 binaries.')
-    optional=pe+24;size=struct.unpack_from('<H',data,pe+20)[0]
-    if struct.unpack_from('<H',data,optional)[0]!=0x20b:raise ValueError('Expected PE32+ executable.')
-    sections=[]
-    for index in range(count):
-        vs,va,raw,offset=struct.unpack_from('<IIII',data,optional+size+40*index+8)
-        sections.append((va,max(vs,raw),offset))
-    def file_offset(rva):
-        for va,length,offset in sections:
-            if va<=rva<va+length:return offset+rva-va
-        raise ValueError('PE import points outside section data.')
-    import_rva=struct.unpack_from('<I',data,optional+120)[0]
-    if not import_rva:return set()
-    cursor=file_offset(import_rva);names=set()
-    while True:
-        descriptor=struct.unpack_from('<IIIII',data,cursor)
-        if not any(descriptor):break
-        start=file_offset(descriptor[3]);end=data.index(b'\0',start)
-        names.add(data[start:end].decode('ascii').lower());cursor+=20
-    return names
+def stage_runtime_closure(destination: Path, runtime_dir: Path | None) -> None:
+    command=['powershell.exe','-NoProfile','-NonInteractive','-File',
+             str(ENGINE/'tools/segacd/stage_release_runtime.ps1'),
+             '-StageDir',str(destination)]
+    if runtime_dir:command+=['-RuntimeDir',str(runtime_dir)]
+    result=subprocess.run(command,capture_output=True,text=True)
+    if result.returncode:
+        raise ValueError('Windows dependency verification failed: '+result.stderr.strip())
+    if not json.loads(result.stdout)['binaries_verified']:
+        raise ValueError('The shared runtime verifier did not check any Windows binaries.')
 
 
 def file_record(root: Path,path: Path) -> dict:
@@ -140,14 +123,10 @@ def stage_windows(args: argparse.Namespace) -> dict:
     shutil.copyfile(ROOT/'launcher/SonicCD.cmd',destination/'SonicCD.cmd')
     shutil.copyfile(ROOT/'release/README.txt',destination/'README-portable-windows.md')
     shutil.copyfile(ROOT/'THIRD-PARTY-LICENSES.md',destination/'THIRD-PARTY-LICENSES.md')
-    required={name for name in pe_imports(destination/'SonicCD.exe') if name.startswith(('vcruntime','msvcp','concrt'))}
+    stage_runtime_closure(destination,args.crt_dir)
+    required={path.name.lower() for path in destination.iterdir() if path.name.lower() in CRT_DLLS}
     if required:
         if not args.crt_dir or not args.crt_license:raise ValueError('This executable needs --crt-dir and --crt-license for app-local Microsoft runtimes.')
-        if not required<=CRT_DLLS:raise ValueError(f'Unrecognized Microsoft runtime imports: {sorted(required-CRT_DLLS)}')
-        for name in sorted(required):
-            source=args.crt_dir/name
-            pe_imports(source)
-            shutil.copyfile(source,destination/name)
         suffix=args.crt_license.suffix.lower()
         if suffix not in ('.txt','.rtf','.md'):raise ValueError('Supply Microsoft runtime license as text or RTF.')
         shutil.copyfile(args.crt_license,destination/('licenses/MSVC-runtime'+suffix))
@@ -216,7 +195,7 @@ def main() -> int:
     windows.add_argument('--crt-license',type=Path)
     args=parser.parse_args()
     try:print(json.dumps(stage_windows(args) if args.command=='windows' else stage_linux(args),indent=2))
-    except (OSError,ValueError,struct.error,subprocess.CalledProcessError) as error:
+    except (OSError,ValueError,subprocess.CalledProcessError) as error:
         print(f'Packaging failed: {error}',file=sys.stderr);return 1
     return 0
 
