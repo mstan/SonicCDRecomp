@@ -18,30 +18,18 @@ export XDG_CACHE_HOME="$cd_tools/state/cache" XDG_CONFIG_HOME="$cd_tools/state/c
 export XDG_DATA_HOME="$cd_tools/state/data" XDG_STATE_HOME="$cd_tools/state/state"
 export MESA_SHADER_CACHE_DIR="$cd_tools/state/cache/mesa"
 
-fetch_tool() {
-    local name=$1 url=$2 expected=$3
-    if [ ! -f "$cd_tools/$name" ]; then
-        curl --fail --location --output "$cd_tools/$name.partial" "$url"
-        printf '%s  %s\n' "$expected" "$cd_tools/$name.partial" | sha256sum --check --status
-        mv -- "$cd_tools/$name.partial" "$cd_tools/$name"
-    fi
-    printf '%s  %s\n' "$expected" "$cd_tools/$name" | sha256sum --check --status
-    chmod 0755 "$cd_tools/$name"
-}
-fetch_tool linuxdeploy-x86_64.AppImage \
- https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/linuxdeploy-x86_64.AppImage \
- c20cd71e3a4e3b80c3483cef793cda3f4e990aca14014d23c544ca3ce1270b4d
-fetch_tool appimagetool-x86_64.AppImage \
- https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage \
- ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0
-fetch_tool runtime-x86_64 \
+# Reuse verified acquisition while retaining Sonic CD's qualified type2 runtime.
+cd_engine=${SEGACD_ENGINE_ROOT:-"$cd_source/external/segacdrecomp"}
+source "$cd_engine/external/segagenesisrecomp/tools/release/appimage.sh"
+genesis_appimage_tools "$cd_tools"
+genesis_fetch_tool \
  https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64 \
- 617aa77314d57c8b8e4fae9c3f0b35af7b30d5529cb69e98f64f92510ed98a46
-fetch_tool AppImage-runtime-LICENSE.txt \
+ 617aa77314d57c8b8e4fae9c3f0b35af7b30d5529cb69e98f64f92510ed98a46 "$cd_tools/runtime-x86_64"
+genesis_fetch_tool \
  https://raw.githubusercontent.com/AppImage/type2-runtime/fedfad51acc2860b2916a1eef32ba4a500ff31ef/LICENSE \
- aa154fc9070614bbe7921f89db11efd1dba7a1f3a41685958110e2230f9c0ca1
+ aa154fc9070614bbe7921f89db11efd1dba7a1f3a41685958110e2230f9c0ca1 "$cd_tools/AppImage-runtime-LICENSE.txt"
 
-"$cd_tools/linuxdeploy-x86_64.AppImage" --appimage-extract-and-run \
+"$LINUXDEPLOY_BIN" --appimage-extract-and-run \
  --appdir "$cd_appdir" --executable "$cd_appdir/usr/bin/SonicCD" \
  --desktop-file "$cd_appdir/sonic-cd.desktop" --icon-file "$cd_appdir/sonic-cd.svg"
 
@@ -59,7 +47,7 @@ if [ -L "$cd_appdir/AppRun" ]; then rm -- "$cd_appdir/AppRun"; fi
 cp -- "$cd_source/launcher/AppRun" "$cd_appdir/AppRun"
 chmod 0755 "$cd_appdir/AppRun"
 python3 "$cd_source/tools/finalize_appdir.py" "$cd_appdir" "$cd_tools"
-ARCH=x86_64 "$cd_tools/appimagetool-x86_64.AppImage" --appimage-extract-and-run \
+ARCH=x86_64 "$APPIMAGETOOL_BIN" --appimage-extract-and-run \
  --runtime-file "$cd_tools/runtime-x86_64" "$cd_appdir" "$cd_output"
 chmod 0755 "$cd_output"
 sha256sum "$cd_output"

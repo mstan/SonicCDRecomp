@@ -32,7 +32,9 @@ python tools/package_release.py windows --exe G:/Builds/SonicCD/SonicCD.exe `
 
 For an MSVC dynamic-CRT build, also pass `--crt-dir` with the approved x64
 redistributable DLL directory and `--crt-license` with its license text/RTF.
-The package tool checks PE imports and stages the required app-local runtimes.
+Windows assembly uses PowerShell and the engine's pinned Genesis release helper
+to check every staged binary and copy the full transitive dependency closure.
+The title's payload allowlist and redistributable license checks still apply.
 
 Linux staging and bundling:
 
@@ -47,3 +49,5 @@ Both staging commands accept `--blank-seed PATH`. Component license texts must
 be supplied from the compiled runtime. The Linux bundler checks its tools,
 bundles runtime libraries and their copyright/license notices, and keeps the
 host Python/dialog environment separate from the game's library search path.
+The bundler reuses the pinned Genesis acquisition helper for verified tools;
+Sonic CD retains its separately pinned type2 runtime and runtime license.
